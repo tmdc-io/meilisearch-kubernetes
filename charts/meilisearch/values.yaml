@@ -1,12 +1,22 @@
-image:
-  # -- Meilisearch image name
-  repository: getmeili/meilisearch
-  # -- Meilisearch image tag
-  tag: v1.8.0
-  # -- Meilisearch image pull policy
-  pullPolicy: IfNotPresent
-  # -- Secret to authenticate against the docker registry
-  pullSecret:
+startupProbe:
+  periodSeconds: 1
+  InitialDelaySeconds: 1
+  failureThreshold: 60
+
+readinessProbe:
+  periodSeconds: 10
+  InitialDelaySeconds: 0
+
+livenessProbe:
+  periodSeconds: 10
+  InitialDelaySeconds: 0
+
+auth:
+  # -- Use an existing Kubernetes secret for the MEILI_MASTER_KEY
+  existingMasterKeySecret: ""
+
+# -- Additional environment variables from ConfigMap or secrets
+envFrom: []
 
 serviceAccount:
   # You can use a specific pre-created service account instead of
@@ -18,3 +28,64 @@ serviceAccount:
   name: "meilisearch"
   # -- Additional annotations for created service account
   annotations: {}
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+  fsGroupChangePolicy: OnRootMismatch
+
+securityContext:
+  capabilities:
+    drop:
+      - ALL
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+
+persistence:
+  # -- Enable persistence using PVC
+  enabled: false
+  # -- PVC Access Mode
+  accessMode: ReadWriteOnce
+  ## Persistent Volume Storage Class
+  ## If defined, storageClassName: <storageClass>
+  ## If set to "-", storageClassName: "", which disables dynamic provisioning
+  ## If undefined (the default) or set to null, no storageClassName spec is
+  ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+  ##   GKE, AWS & OpenStack)
+  ##
+  # -- PVC Storage Class
+  storageClass: "-"
+
+  ## Data Persistent Volume existing claim name
+  ## Requires persistence.enabled: true
+  ## If defined, PVC must be created manually before volume will be bound
+  # -- Existing PVC
+  existingClaim: ""
+  # -- PVC Storage Request
+  size: 10Gi
+  # -- Additional annotations for PVC
+  annotations: {}
+  volume:
+    name: data
+    mountPath: /meili_data
+
+# -- Monitoring with Prometheus Operator
+serviceMonitor:
+  # -- Enable ServiceMonitor to configure scraping
+  enabled: false
+  # -- Set of labels to transfer from the Kubernetes Service onto the target
+  additionalLabels: {}
+  # -- Set scraping frequency
+  interval: 1m
+  # -- Set scraping timeout
+  scrapeTimeout: 10s
+  # -- Set path to metrics
+  telemetryPath: /metrics
+  # -- Set of labels to transfer from the Kubernetes Service onto the target
+  targetLabels: []
+  # -- MetricRelabelConfigs to apply to samples before ingestion
+  metricRelabelings: []
+  # -- Set relabel_configs as per https://prometheus.io/docs/prometheus/latest/configuration/configuration/#relabel_config
+  relabelings: []
