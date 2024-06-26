@@ -5,7 +5,6 @@ metadata:
   labels:
     {{- include "meilisearch.labels" . | nindent 4 }}
 spec:
-  externalTrafficPolicy: Local
   type: ClusterIP
   ports:
     - port: {{ .Values.container.containerPort }}
