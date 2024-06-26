@@ -36,11 +36,11 @@ spec:
         - name: tmp
           emptyDir: {}
         {{- if .Values.persistence.enabled }}
-        - name: {{ .Values.persistence.volume.name }}
+        - name: {{ include "meilisearch.fullname" . }}
           persistentVolumeClaim:
-            claimName: {{ if .Values.persistence.existingClaim }}{{ .Values.persistence.existingClaim }}{{- else }}{{ include "meilisearch.fullname" . }}{{- end }}
+            claimName: {{ include "meilisearch.fullname" . }}
         {{- else }}
-        - name: {{ .Values.persistence.volume.name }}
+        - name: {{ include "meilisearch.fullname" . }}
           emptyDir: {}
         {{- end }}
         {{- if .Values.volumes }}
@@ -61,8 +61,8 @@ spec:
           volumeMounts:
             - name: tmp
               mountPath: /tmp
-            - name: {{ .Values.persistence.volume.name }}
-              mountPath: {{ .Values.persistence.volume.mountPath }}
+            - name: {{ include "meilisearch.fullname" . }}
+              mountPath: /meili_data
             {{- if .Values.volumeMounts }}
 {{ toYaml .Values.volumeMounts | indent 12 }}
             {{- end }}
