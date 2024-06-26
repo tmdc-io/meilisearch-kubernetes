@@ -6,10 +6,6 @@ metadata:
   name: {{ include "meilisearch.fullname" . }}
   labels:
     {{- include "meilisearch.labels" . | nindent 4 }}
-  {{- with .Values.persistence.annotations }}
-  annotations:
-    {{ toYaml . | nindent 4 }}
-  {{- end }}
 spec:
   accessModes:
     - {{ .Values.persistence.accessMode | quote }}
